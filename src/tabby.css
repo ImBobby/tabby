@@ -1,0 +1,55 @@
+/*! Tabby v0.1.0 | (c) 2014 @_bobbylie | https://github.com/ImBobby/tabby */
+
+/* Base
+-------------------------------------------------- */
+
+.tabby,
+.tabby * {
+    box-sizing: border-box;
+}
+
+.tabby-tab {
+    display: none;
+}
+
+.tabby-tab.active {
+    display: block;
+}
+
+/* Theme
+-------------------------------------------------- */
+
+.tabby {
+    margin-bottom: 20px;
+}
+
+.tabby-triggers:after {
+    display: table;
+    clear: both;
+    content: '';
+}
+
+.tabby-trigger {
+    position: relative;
+    z-index: 2;
+    float: left;
+    display: block;
+    padding: 10px 20px;
+    border: solid 1px transparent;
+    text-decoration: none;
+    text-transform: uppercase;
+    color: #555;
+}
+
+.tabby-trigger.active {
+    border-color: #aaa;
+    border-bottom-color: white;
+}
+
+.tabby-tab {
+    position: relative;
+    top: -1px;
+    z-index: 1;
+    padding: 20px;
+    border: solid 1px #aaa;
+}
