@@ -2,6 +2,10 @@
 
 ;(function ( $, window, document, undefined ) {
 
+  var options = {
+    hashChange: false
+  };
+
   var config = {
     tabActive: 'active',
     tabReady: 'tabby-tab--ready',
@@ -24,6 +28,9 @@
   }
 
   function hasHash() {
+    
+    if ( !options.hashChange ) return;
+
     var _hash = window.location.hash;
 
     if ( !_hash ) return;
@@ -66,7 +73,9 @@
         target  = this.getAttribute('href'),
         $target = $(target);
 
-    if ( $target.hasClass( config.tabActive ) ) return;
+    if ( $target.hasClass( config.tabActive ) ) {
+      return event.preventDefault();
+    }
 
     var $parent   = $this.parents('[data-tabby-group]'),
         $triggers = $parent.find('.tabby-trigger'),
@@ -82,14 +91,22 @@
 
     setTabbyHeight($parent);
 
-    window.location.hash = target;
+    if ( options.hashChange ) {
+      return window.location.hash = target;
+    }
+
+    event.preventDefault();
   }
 
-  $.fn.tabby = function ( options ) {
+  $.fn.tabby = function ( userOpts ) {
 
     if ( !this.length ) return;
 
-    this.each(function () {
+    var opts = userOpts || options;
+
+    $.extend(options, userOpts);
+
+    return this.each(function () {
       var $this     = $(this),
           $triggers = $this.find('.tabby-trigger');
 
