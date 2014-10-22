@@ -49,6 +49,9 @@
   }
 
   $.fn.tabby = function ( options ) {
+
+    if ( !this.length ) return;
+
     this.each(function () {
       var $this     = $(this),
           $triggers = $this.find('.tabby-trigger');
