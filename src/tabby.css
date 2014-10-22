@@ -52,6 +52,23 @@
     border-bottom-color: white;
 }
 
-.tabby-tab {
+.tabby-tabs {
+    will-change: height;
     position: relative;
+    height: 0;
+    -webkit-transition: all 500ms ease;
+            transition: all 500ms ease;
+}
+
+.tabby-tab {
+    position: absolute;
+    opacity: 0;
+    -webkit-transition: all 300ms ease;
+            transition: all 300ms ease;
+}
+
+.tabby-tab--ready {
+    opacity: 1;
+    -webkit-transition: all 300ms ease 500ms;
+            transition: all 300ms ease 500ms;
 }
