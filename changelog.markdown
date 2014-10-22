@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0
+
+* new option: speed
+
 ## 0.3.0
 
 * User can now pass options
