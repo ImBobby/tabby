@@ -2,14 +2,17 @@
 
 ;(function ( $, window, document, undefined ) {
 
+  // Default options
   var options = {
-    hashChange: false
+    hashChange: false,
+    speed: 500
   };
 
-  var config = {
-    tabActive: 'active',
-    tabReady: 'tabby-tab--ready',
-    triggerActive: 'active'
+  // Store class name
+  var _class = {
+    tabActive     : 'active',
+    tabReady      : 'tabby-tab--ready',
+    triggerActive : 'active'
   };
 
   function supportTransition() {
@@ -21,12 +24,14 @@
     );
   }
 
+  // Set Unique ID to each instance
   function setGroup( elem ) {
     var UID = new Date().getTime();
 
     elem.setAttribute('data-tabby-group', UID);
   }
 
+  // Check whether URL contain hash
   function hasHash() {
     
     if ( !options.hashChange ) return;
@@ -38,13 +43,20 @@
     var $target     = $(_hash),
         $trigger    = $('.tabby-trigger[href="' + _hash + '"]');
 
-    $trigger.siblings().removeClass( config.triggerActive );
-    $trigger.addClass( config.triggerActive );
+    $trigger.siblings().removeClass( _class.triggerActive );
+    $trigger.addClass( _class.triggerActive );
 
-    $target.siblings().removeClass( config.tabActive );
-    $target.addClass( config.tabActive );
+    $target.siblings().removeClass( _class.tabActive );
+    $target.addClass( _class.tabActive );
   }
 
+  // Set animation speed
+  function setTabbySpeed( elem, duration ) {
+    elem.css('transition-duration', duration + 'ms');
+    elem.find('.tabby-tab').css('transition-delay', duration + 'ms');
+  }
+
+  // Set container height equal to active tab
   function setTabbyHeight( elem ) {
     var $container    = elem.find('.tabby-tabs'),
         $tabs         = elem.find('.tabby-tab'),
@@ -52,6 +64,8 @@
         activeHeight  = $activeTab.innerHeight();
 
     if ( supportTransition() ) {
+
+      setTabbySpeed( $container, options.speed );
 
       // Use transition if available
       $container.css('height', activeHeight);
@@ -61,11 +75,11 @@
       // Use jQuery animate if transition unvailable
       $container.animate({
         'height': activeHeight
-      }, 500);
+      }, options.speed);
 
     }
 
-    $tabs.addClass( config.tabReady );
+    $tabs.addClass( _class.tabReady );
   }
 
   function toggleTab( event ) {
@@ -73,7 +87,7 @@
         target  = this.getAttribute('href'),
         $target = $(target);
 
-    if ( $target.hasClass( config.tabActive ) ) {
+    if ( $target.hasClass( _class.tabActive ) ) {
       return event.preventDefault();
     }
 
@@ -81,18 +95,18 @@
         $triggers = $parent.find('.tabby-trigger'),
         $tabs     = $parent.find('.tabby-tab');
 
-    $tabs.removeClass( config.tabReady );
+    $tabs.removeClass( _class.tabReady );
 
-    $triggers.removeClass( config.triggerActive );
-    $this.addClass( config.triggerActive );
+    $triggers.removeClass( _class.triggerActive );
+    $this.addClass( _class.triggerActive );
 
-    $tabs.removeClass( config.tabActive );
-    $target.addClass( config.tabActive );
+    $tabs.removeClass( _class.tabActive );
+    $target.addClass( _class.tabActive );
 
     setTabbyHeight($parent);
 
     if ( options.hashChange ) {
-      return window.location.hash = target;
+      window.location.hash = target;
     }
 
     event.preventDefault();
