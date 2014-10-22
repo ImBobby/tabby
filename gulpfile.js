@@ -52,6 +52,15 @@ gulp.task('clean', function (cb) {
 });
 
 
+/* Watch
+--------------------------------------------------------------------------- */
+
+gulp.task('watch', ['uglify', 'minify'], function () {
+  gulp.watch('src/tabby.js', ['uglify']);
+  gulp.watch('src/tabby.css', ['minify']);
+});
+
+
 /* Build production ready assets
 --------------------------------------------------------------------------- */
 
