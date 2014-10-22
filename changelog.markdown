@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0
+
+* User can now pass options
+* Code optimization
+* Set position and dimension to element `tabby-tab`
+
 ## 0.2.1
 
 * Separate Tabby structural styles and skin
