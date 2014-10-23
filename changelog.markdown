@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.0
+
+* new option: `complete` callback
+
 ## 0.4.0
 
 * new option: speed
