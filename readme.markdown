@@ -65,6 +65,14 @@ var elem = $('#myTab');
 elem.tabby();
 ```
 
+### Options
+
+| Option  | Type  | Default  | Description  |
+|---|---|---|---|
+| speed  | integer  | 500  | in millisecond (ms)  |
+| hashChange  | boolean  | false  | If set to true, will add hash to URL  |
+| complete  | function  | null  | Callback function which run after animation finish  |
+
 ## Browser support
 
 Minimum browser support is IE8+ along with other evergreen browsers.
