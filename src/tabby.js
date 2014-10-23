@@ -5,7 +5,8 @@
   // Default options
   var options = {
     hashChange: false,
-    speed: 500
+    speed: 500,
+    complete: null
   };
 
   // Store class name
@@ -79,6 +80,11 @@
 
     }
 
+    // Run callback
+    if ( $.isFunction(options.complete) ) {
+      var changeComplete = setTimeout( options.complete , options.speed );
+    }
+
     $tabs.addClass( _class.tabReady );
   }
 
@@ -105,6 +111,7 @@
 
     setTabbyHeight($parent);
 
+    // Set has to URL if hashChange is true
     if ( options.hashChange ) {
       window.location.hash = target;
     }
