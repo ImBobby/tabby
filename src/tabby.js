@@ -25,6 +25,37 @@
     );
   }
 
+  function setAriaAttributes( elem ) {
+    var $triggersWrapper  = elem.find('.tabby-triggers'),
+        $triggers         = elem.find('.tabby-trigger'),
+        $tabs             = elem.find('.tabby-tab');
+
+    $triggersWrapper.attr('role', 'tablist');
+    
+    $triggers.each(function(index, el) {
+      var $this     = $(el),
+          href      = $this.attr('href'),
+          controls  = href.substring(1, href.length);
+
+      $this.attr('role', 'tab');
+      $this.attr('aria-controls', controls);
+
+      if ( $this.hasClass( _class.triggerActive ) ) {
+        $this.attr('aria-selected', 'true');
+      }
+    });
+
+    $tabs.each(function(index, el) {
+      var $this = $(el);
+
+      $this.attr('role', 'tabpanel');
+
+      if ( !$this.hasClass( _class.tabActive ) ) {
+        $this.attr('aria-hidden', 'true');
+      }
+    });
+  }
+
   // Set Unique ID to each instance
   function setGroup( elem ) {
     var UID = new Date().getTime();
@@ -45,10 +76,16 @@
         $trigger    = $('.tabby-trigger[href="' + _hash + '"]');
 
     $trigger.siblings().removeClass( _class.triggerActive );
-    $trigger.addClass( _class.triggerActive );
+    $trigger.siblings().removeAttr('aria-selected');
+    $trigger
+      .addClass( _class.triggerActive )
+      .attr('aria-selected', 'true');
 
     $target.siblings().removeClass( _class.tabActive );
-    $target.addClass( _class.tabActive );
+    $target.siblings().attr('aria-hidden', 'true');
+    $target
+      .addClass( _class.tabActive )
+      .removeAttr('aria-hidden');
   }
 
   // Set animation speed
@@ -103,13 +140,23 @@
 
     $tabs.removeClass( _class.tabReady );
 
-    $triggers.removeClass( _class.triggerActive );
-    $this.addClass( _class.triggerActive );
+    $triggers
+      .removeClass( _class.triggerActive )
+      .removeAttr('aria-selected');
+    $this
+      .addClass( _class.triggerActive )
+      .attr('aria-selected', 'true')
+      .focus();
 
-    $tabs.removeClass( _class.tabActive );
-    $target.addClass( _class.tabActive );
+    $tabs
+      .removeClass( _class.tabActive )
+      .attr('aria-hidden', 'true');
+    $target
+      .addClass( _class.tabActive )
+      .removeAttr('aria-hidden');
 
     setTabbyHeight($parent);
+
 
     // Set has to URL if hashChange is true
     if ( options.hashChange ) {
@@ -133,6 +180,8 @@
 
       // Assign an ID for each tab group
       setGroup(this);
+
+      setAriaAttributes($this);
 
       // Show tab base on hash
       hasHash();

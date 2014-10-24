@@ -74,6 +74,10 @@
     color: #555;
 }
 
+.tabby-trigger:focus {
+    outline: dotted 1px;
+}
+
 .tabby-trigger.active {
     border-color: #aaa;
     border-bottom-color: white;
