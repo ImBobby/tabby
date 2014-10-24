@@ -2,6 +2,9 @@
 
 ;(function ( $, window, document, undefined ) {
 
+  var RIGHT_ARROW = 39,
+      LEFT_ARROW  = 37;
+
   // Default options
   var options = {
     hashChange: false,
@@ -37,11 +40,17 @@
           href      = $this.attr('href'),
           controls  = href.substring(1, href.length);
 
-      $this.attr('role', 'tab');
-      $this.attr('aria-controls', controls);
+      $this.attr({
+        'role': 'tab',
+        'aria-controls': controls,
+        'tabindex': '-1'
+      });
 
       if ( $this.hasClass( _class.triggerActive ) ) {
-        $this.attr('aria-selected', 'true');
+        $this.attr({
+          'aria-selected': 'true',
+          'tabindex': '0'
+        });
       }
     });
 
@@ -166,6 +175,48 @@
     event.preventDefault();
   }
 
+  function keyboardNav( elem ) {
+    var cycleTabbyNav = function (e) {
+
+      // Get active element.
+      var activeElem = $( document.activeElement );
+
+      // If not tabby trigger, ignore.
+      if ( !activeElem.hasClass( _class.triggerActive ) ) return;
+
+      var prev    = activeElem.prev(),
+          next    = activeElem.next(),
+
+          hasPrev = prev.length,
+          hasNext = next.length;
+
+      var gotoNav = function ( position ) {
+        activeElem
+          .removeClass( _class.triggerActive )
+          .removeAttr('aria-selected')
+          .attr('tabindex', '-1');
+
+        position
+          .addClass( _class.triggerActive )
+          .attr({
+            'aria-selected': 'true',
+            'tabindex': '0'
+          })
+          .focus();
+
+        position.trigger('click');
+      };
+
+      if ( e.keyCode === RIGHT_ARROW && hasNext ) {
+        gotoNav( next );
+      } else if ( e.keyCode === LEFT_ARROW && hasPrev ) {
+        gotoNav( prev );
+      }
+    };
+
+    $(document).keydown( cycleTabbyNav );
+  }
+
   $.fn.tabby = function ( userOpts ) {
 
     if ( !this.length ) return;
@@ -181,6 +232,7 @@
       // Assign an ID for each tab group
       setGroup(this);
 
+      // Set proper ARIA and Role attributes
       setAriaAttributes($this);
 
       // Show tab base on hash
@@ -191,6 +243,8 @@
 
       // Toggle tab on click
       $triggers.click( toggleTab );
+
+      keyboardNav($this);
     });
   };
 
