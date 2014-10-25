@@ -1,4 +1,4 @@
-/*! Tabby v0.5.0 | (c) 2014 @_bobbylie | https://github.com/ImBobby/tabby */
+/*! Tabby v0.6.0 | (c) 2014 @_bobbylie | https://github.com/ImBobby/tabby */
 
 ;(function ( $, window, document, undefined ) {
 

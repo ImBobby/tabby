@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.0
+
+Better accessibility with:
+* ARIA support
+* Keyboard navigation
+
 ## 0.5.0
 
 * new option: `complete` callback

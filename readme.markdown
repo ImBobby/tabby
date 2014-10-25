@@ -1,6 +1,6 @@
 # Tabby
 
-> Tabby is a minimal jQuery tab plugin with hashChange built in and optional default theme.
+> Tabby is a minimal jQuery tab plugin that put accessibilty in mind with keyboard navigation support.
 
 ## Getting Started
 
@@ -76,3 +76,7 @@ elem.tabby();
 ## Browser support
 
 Minimum browser support is IE8+ along with other evergreen browsers.
+
+## Limitation
+
+For now Tabby only work for 1 instance per page only. 
