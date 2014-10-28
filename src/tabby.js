@@ -19,6 +19,94 @@
     triggerActive : 'active'
   };
 
+  function Tabby( elem ) {
+    this.triggers = elem.find('.tabby-trigger');
+    this.tabs     = elem.find('.tabby-tab');
+
+    this.activeTrigger  = elem.find('.tabby-trigger.active');
+    this.activeTab      = elem.find('.tabby-tab.active');
+
+    this.triggers.click( newToggleTab );
+
+    newShowTab( this.activeTab );
+
+    newSetGroup( elem );
+
+    newSetAria( elem );
+  }
+
+  function newToggleTab(e) {
+    var $this   = $(this),
+        target  = $this.attr('href'),
+        $target = $(target);
+
+    $this.siblings()
+      .removeClass( _class.triggerActive )
+      .attr('tabindex', '-1')
+      .removeAttr('aria-selected');
+    $this
+      .addClass( _class.triggerActive )
+      .attr({
+        'tabindex': '0',
+        'aria-selected': 'true'
+      });
+
+    newShowTab( $target );
+
+    e.preventDefault();
+  }
+
+  function newShowTab( activeTab ) {
+    var height = activeTab.innerHeight();
+
+    activeTab.parent().css('height', height + 'px');
+    activeTab.siblings().removeClass( _class.tabActive + ' ' + _class.tabReady ).attr('aria-hidden', 'true');
+    activeTab.addClass( _class.tabActive + ' ' + _class.tabReady ).removeAttr('aria-hidden');
+  }
+
+  function newSetGroup( elem ) {
+    var UID = new Date().getTime();
+
+    elem.attr('data-tabby-group', UID);
+  }
+
+  function newSetAria( elem ) {
+    var $triggersWrapper  = elem.find('.tabby-triggers'),
+        $triggers         = elem.find('.tabby-trigger'),
+        $tabs             = elem.find('.tabby-tab');
+
+    $triggersWrapper.attr('role', 'tablist');
+    
+    $triggers.each(function(index, el) {
+      var $this     = $(el),
+          href      = $this.attr('href'),
+          controls  = href.substring(1, href.length);
+
+      $this.attr({
+        'role': 'tab',
+        'aria-controls': controls,
+        'tabindex': '-1'
+      });
+
+      if ( $this.hasClass( _class.triggerActive ) ) {
+        $this.attr({
+          'aria-selected': 'true',
+          'tabindex': '0'
+        });
+      }
+    });
+
+    $tabs.each(function(index, el) {
+      var $this = $(el);
+
+      $this.attr('role', 'tabpanel');
+
+      if ( !$this.hasClass( _class.tabActive ) ) {
+        $this.attr('aria-hidden', 'true');
+      }
+    });
+  }
+
   function supportTransition() {
     return (
       'WebkitTransition' in document.body.style ||
@@ -221,30 +309,34 @@
 
     if ( !this.length ) return;
 
-    var opts = userOpts || options;
+    // var opts = userOpts || options;
 
-    $.extend(options, userOpts);
+    // $.extend(options, userOpts);
+
+    // return this.each(function () {
+    //   var $this     = $(this),
+    //       $triggers = $this.find('.tabby-trigger');
+
+    //   // Assign an ID for each tab group
+    //   setGroup(this);
+
+    //   // Set proper ARIA and Role attributes
+    //   setAriaAttributes($this);
+
+    //   // Show tab base on hash
+    //   hasHash();
+
+    //   // Calculate height
+    //   setTabbyHeight($this);
+
+    //   // Toggle tab on click
+    //   $triggers.click( toggleTab );
+
+    //   keyboardNav($this);
+    // });
 
     return this.each(function () {
-      var $this     = $(this),
-          $triggers = $this.find('.tabby-trigger');
-
-      // Assign an ID for each tab group
-      setGroup(this);
-
-      // Set proper ARIA and Role attributes
-      setAriaAttributes($this);
-
-      // Show tab base on hash
-      hasHash();
-
-      // Calculate height
-      setTabbyHeight($this);
-
-      // Toggle tab on click
-      $triggers.click( toggleTab );
-
-      keyboardNav($this);
+      new Tabby( $(this) );
     });
   };
 
