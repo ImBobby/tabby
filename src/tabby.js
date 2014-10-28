@@ -41,7 +41,7 @@
       this.toggleTab( this._defaults );
       this.setAccessibility();
       this.hasHash( this._defaults );
-      this.keyboardNav();
+      this.keyboardNav( this._element );
     },
 
     // Set UID to each instance
@@ -175,11 +175,11 @@
       Plugin.prototype.showActiveTab( $target, settings );
     },
 
-    keyboardNav: function () {
+    keyboardNav: function ( element ) {
       var cycleTabbyNav = function ( event ) {
-        var $activeElem = $( document.activeElement );
+        var $activeElem = element.find('.tabby-trigger:focus');
 
-        if ( !$activeElem.hasClass( _class.triggerActive ) ) return;
+        if ( !$activeElem.length ) return;
 
         var prev    = $activeElem.prev(),
             next    = $activeElem.next(),
@@ -193,15 +193,14 @@
             .removeAttr('aria-selected')
             .attr('tabindex', '-1');
 
-          position.trigger('click');
+          position.trigger('click').focus();
 
           position
             .addClass( _class.triggerActive )
             .attr({
               'aria-selected': 'true',
               'tabindex': '0'
-            })
-            .focus();
+            });
         };
 
         if ( event.keyCode === RIGHT_ARROW && hasNext ) {
@@ -211,7 +210,7 @@
         }
       };
 
-      $(document).keydown( cycleTabbyNav );
+      $(document).keyup( cycleTabbyNav );
     }
 
   });
