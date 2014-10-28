@@ -80,8 +80,11 @@
 
     toggleTab: function ( settings ) {
       this.triggers.click( function ( event ) {
-        var $this   = $(this),
-            target  = $this.attr('href'),
+        var $this   = $(this);
+
+        if ( $this.hasClass( _class.triggerActive ) ) return;
+
+        var target  = $this.attr('href'),
             $target = $(target);
 
         $this.siblings()
