@@ -39,8 +39,8 @@
 
     init: function () {
       this.setGroup();
-      this.showActiveTab( this.activeTab, this._defaults.speed );
-      this.toggleTab( this._defaults.speed );
+      this.showActiveTab( this.activeTab, this._defaults );
+      this.toggleTab( this._defaults );
       this.setAccessibility();
     },
 
@@ -50,18 +50,19 @@
       this.element.attr('data-tabby-group', UID);
     },
 
-    showActiveTab: function ( activeTab, duration ) {
+    showActiveTab: function ( activeTab, settings ) {
       var $container = activeTab.parent(),
           $tabs       = $container.find('.tabby-tab'),
-          height = activeTab.innerHeight();
+          height = activeTab.innerHeight(),
+          speed   = settings.speed;
 
       if ( supportTransition() ) {
-        Plugin.prototype.setTabbySpeed( $container, $tabs, duration );
+        Plugin.prototype.setTabbySpeed( $container, $tabs, speed );
         $container.css('height', height);
       } else {
         $container.animate({
           'height': height + 'px'
-        }, duration)
+        }, speed)
       }
 
       activeTab.siblings()
@@ -71,9 +72,13 @@
       activeTab
         .addClass( _class.tabActive + ' ' + _class.tabReady )
         .removeAttr('aria-hidden');
+
+      if ( $.isFunction( settings.complete ) ) {
+        var transitionComplete = setTimeout( settings.complete, settings.speed );
+      }
     },
 
-    toggleTab: function ( duration ) {
+    toggleTab: function ( settings ) {
       this.triggers.click( function ( event ) {
         var $this   = $(this),
             target  = $this.attr('href'),
@@ -90,7 +95,7 @@
             'aria-selected': 'true'
           });
 
-        Plugin.prototype.showActiveTab( $target, duration );
+        Plugin.prototype.showActiveTab( $target, settings );
 
         event.preventDefault();
       });
@@ -174,12 +179,6 @@
     $target
       .addClass( _class.tabActive )
       .removeAttr('aria-hidden');
-  }
-
-  // Set animation speed
-  function setTabbySpeed( elem, duration ) {
-    elem.css('transition-duration', duration + 'ms');
-    elem.find('.tabby-tab').css('transition-delay', duration + 'ms', duration + 'ms');
   }
 
   function keyboardNav( elem ) {
