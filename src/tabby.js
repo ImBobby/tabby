@@ -42,6 +42,7 @@
       this.showActiveTab( this.activeTab, this._defaults );
       this.toggleTab( this._defaults );
       this.setAccessibility();
+      this.hasHash( this._defaults );
     },
 
     setGroup: function () {
@@ -62,7 +63,7 @@
       } else {
         $container.animate({
           'height': height + 'px'
-        }, speed)
+        }, speed);
       }
 
       activeTab.siblings()
@@ -100,7 +101,7 @@
 
         Plugin.prototype.showActiveTab( $target, settings );
 
-        event.preventDefault();
+        if ( !settings.hashChange ) return event.preventDefault();
       });
     },
 
@@ -146,6 +147,24 @@
 
       container.css('transition-duration', speed);
       tabs.css('transition-delay', speed);
+    },
+
+    hasHash: function ( settings ) {
+
+      var _hash = window.location.hash;
+
+      if ( !settings.hashChange || _hash === '' ) return;
+
+      var $target = $(_hash),
+          $trigger = $('.tabby-trigger[href="' + _hash + '"]');
+
+      $trigger.siblings().removeClass( _class.triggerActive );
+      $trigger.siblings().removeAttr('aria-selected');
+      $trigger
+        .addClass( _class.triggerActive )
+        .attr('aria-selected', 'true');
+
+      Plugin.prototype.showActiveTab( $target, settings );
     }
 
   });
@@ -177,10 +196,10 @@
       .addClass( _class.triggerActive )
       .attr('aria-selected', 'true');
 
-    $target.siblings().removeClass( _class.tabActive );
+    $target.siblings().removeClass( _class.tabActive + ' ' + _class.tabReady );
     $target.siblings().attr('aria-hidden', 'true');
     $target
-      .addClass( _class.tabActive )
+      .addClass( _class.tabActive + ' ' + _class.tabReady )
       .removeAttr('aria-hidden');
   }
 
