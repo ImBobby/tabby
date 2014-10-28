@@ -83,7 +83,7 @@
       this.triggers.click( function ( event ) {
         var $this   = $(this);
 
-        if ( $this.hasClass( _class.triggerActive ) ) return;
+        if ( $this.hasClass( _class.triggerActive ) ) return event.preventDefault();
 
         var target  = $this.attr('href'),
             $target = $(target);
