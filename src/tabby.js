@@ -20,17 +20,15 @@
     triggerActive : 'active'
   };
 
-  function Plugin ( element, options ) {
-    this.element    = $(element);
-    this._settings  = $.extend( {}, defaults, options);
+  function Plugin ( element, userOptions ) {
+    this._element   = $(element);
+    this._settings  = $.extend( {}, defaults, userOptions);
     this._defaults  = this._settings;
     this._name      = pluginName;
 
-    this.triggers = this.element.find('.tabby-trigger');
-    this.tabs     = this.element.find('.tabby-tab');
+    this._triggers  = this._element.find('.tabby-trigger');
 
-    this.activeTrigger  = this.element.find('.tabby-trigger.active');
-    this.activeTab      = this.element.find('.tabby-tab.active');
+    this._activeTab = this._element.find('.tabby-tab.active');
 
     this.init();
   }
@@ -39,23 +37,31 @@
 
     init: function () {
       this.setGroup();
-      this.showActiveTab( this.activeTab, this._defaults );
+      this.showActiveTab( this._activeTab, this._defaults );
       this.toggleTab( this._defaults );
       this.setAccessibility();
       this.hasHash( this._defaults );
+      this.keyboardNav();
     },
 
+    // Set UID to each instance
     setGroup: function () {
       var UID = new Date().getTime();
 
-      this.element.attr('data-tabby-group', UID);
+      this._element.attr('data-tabby-group', UID);
     },
 
     showActiveTab: function ( activeTab, settings ) {
-      var $container = activeTab.parent(),
+      var $container  = activeTab.parent(),
+
+          // Find all tabs
           $tabs       = $container.find('.tabby-tab'),
-          height = activeTab.innerHeight(),
-          speed   = settings.speed;
+
+          // Get the height of selected tab
+          height      = activeTab.innerHeight(),
+
+          // Get speed value
+          speed       = settings.speed;
 
       if ( supportTransition() ) {
         Plugin.prototype.setTabbySpeed( $container, $tabs, speed );
@@ -80,10 +86,12 @@
     },
 
     toggleTab: function ( settings ) {
-      this.triggers.click( function ( event ) {
+      this._triggers.click( function ( event ) {
         var $this   = $(this);
 
-        if ( $this.hasClass( _class.triggerActive ) ) return event.preventDefault();
+        if ( $this.hasClass( _class.triggerActive ) ) {
+          return event.preventDefault();
+        }
 
         var target  = $this.attr('href'),
             $target = $(target);
@@ -106,9 +114,9 @@
     },
 
     setAccessibility: function () {
-      var $triggersWrapper  = this.element.find('.tabby-triggers'),
-          $triggers         = this.element.find('.tabby-trigger'),
-          $tabs             = this.element.find('.tabby-tab');
+      var $triggersWrapper  = this._element.find('.tabby-triggers'),
+          $triggers         = this._element.find('.tabby-trigger'),
+          $tabs             = this._element.find('.tabby-tab');
 
       $triggersWrapper.attr('role', 'tablist');
       
@@ -165,6 +173,45 @@
         .attr('aria-selected', 'true');
 
       Plugin.prototype.showActiveTab( $target, settings );
+    },
+
+    keyboardNav: function () {
+      var cycleTabbyNav = function ( event ) {
+        var $activeElem = $( document.activeElement );
+
+        if ( !$activeElem.hasClass( _class.triggerActive ) ) return;
+
+        var prev    = $activeElem.prev(),
+            next    = $activeElem.next(),
+
+            hasPrev = prev.length,
+            hasNext = next.length;
+
+        var gotoNav = function ( position ) {
+          $activeElem
+            .removeClass( _class.triggerActive )
+            .removeAttr('aria-selected')
+            .attr('tabindex', '-1');
+
+          position.trigger('click');
+
+          position
+            .addClass( _class.triggerActive )
+            .attr({
+              'aria-selected': 'true',
+              'tabindex': '0'
+            })
+            .focus();
+        };
+
+        if ( event.keyCode === RIGHT_ARROW && hasNext ) {
+          gotoNav( next );
+        } else if ( event.keyCode === LEFT_ARROW && hasPrev ) {
+          gotoNav( prev );
+        }
+      };
+
+      $(document).keydown( cycleTabbyNav );
     }
 
   });
@@ -178,79 +225,12 @@
     );
   }
 
-  // Check whether URL contain hash
-  function hasHash() {
-    
-    if ( !options.hashChange ) return;
-
-    var _hash = window.location.hash;
-
-    if ( !_hash ) return;
-
-    var $target     = $(_hash),
-        $trigger    = $('.tabby-trigger[href="' + _hash + '"]');
-
-    $trigger.siblings().removeClass( _class.triggerActive );
-    $trigger.siblings().removeAttr('aria-selected');
-    $trigger
-      .addClass( _class.triggerActive )
-      .attr('aria-selected', 'true');
-
-    $target.siblings().removeClass( _class.tabActive + ' ' + _class.tabReady );
-    $target.siblings().attr('aria-hidden', 'true');
-    $target
-      .addClass( _class.tabActive + ' ' + _class.tabReady )
-      .removeAttr('aria-hidden');
-  }
-
-  function keyboardNav( elem ) {
-    var cycleTabbyNav = function (e) {
-
-      // Get active element.
-      var activeElem = $( document.activeElement );
-
-      // If not tabby trigger, ignore.
-      if ( !activeElem.hasClass( _class.triggerActive ) ) return;
-
-      var prev    = activeElem.prev(),
-          next    = activeElem.next(),
-
-          hasPrev = prev.length,
-          hasNext = next.length;
-
-      var gotoNav = function ( position ) {
-        activeElem
-          .removeClass( _class.triggerActive )
-          .removeAttr('aria-selected')
-          .attr('tabindex', '-1');
-
-        position
-          .addClass( _class.triggerActive )
-          .attr({
-            'aria-selected': 'true',
-            'tabindex': '0'
-          })
-          .focus();
-
-        position.trigger('click');
-      };
-
-      if ( e.keyCode === RIGHT_ARROW && hasNext ) {
-        gotoNav( next );
-      } else if ( e.keyCode === LEFT_ARROW && hasPrev ) {
-        gotoNav( prev );
-      }
-    };
-
-    $(document).keydown( cycleTabbyNav );
-  }
-
-  $.fn.tabby = function ( options ) {
+  $.fn.tabby = function ( userOptions ) {
 
     if ( !this.length ) return;
 
     return this.each(function () {
-      new Plugin( this, options );
+      new Plugin( this, userOptions );
     });
   };
 
