@@ -12,6 +12,7 @@
     will-change: height;
     position: relative;
     height: 0;
+    overflow: hidden;
     -webkit-transition-property: all;
             transition-property: all;
     -webkit-transition-duration: 500ms;
