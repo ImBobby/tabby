@@ -52,10 +52,11 @@
 
     showActiveTab: function ( activeTab, duration ) {
       var $container = activeTab.parent(),
+          $tabs       = $container.find('.tabby-tab'),
           height = activeTab.innerHeight();
 
       if ( supportTransition() ) {
-        $container.css('transition-duration', duration + 'ms');
+        Plugin.prototype.setTabbySpeed( $container, $tabs, duration );
         $container.css('height', height);
       } else {
         $container.animate({
@@ -130,6 +131,13 @@
           $this.attr('aria-hidden', 'true');
         }
       });
+    },
+
+    setTabbySpeed: function ( container, tabs, duration ) {
+      var speed = duration + 'ms';
+
+      container.css('transition-duration', speed);
+      tabs.css('transition-delay', speed);
     }
 
   });
@@ -171,7 +179,7 @@
   // Set animation speed
   function setTabbySpeed( elem, duration ) {
     elem.css('transition-duration', duration + 'ms');
-    elem.find('.tabby-tab').css('transition-delay', duration + 'ms');
+    elem.find('.tabby-tab').css('transition-delay', duration + 'ms', duration + 'ms');
   }
 
   function keyboardNav( elem ) {
