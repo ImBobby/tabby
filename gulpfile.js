@@ -35,7 +35,7 @@ gulp.task('minify', function () {
   };
 
   return gulp
-    .src('src/tabby.css')
+    .src('src/*.css')
     .pipe(minifyCSS())
     .pipe(rename(optsRename))
     .pipe(gulp.dest('build/'));
