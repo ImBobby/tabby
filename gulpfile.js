@@ -3,6 +3,7 @@ var gulp      = require('gulp'),
     uglify    = require('gulp-uglify'),
     minifyCSS = require('gulp-minify-css'),
     rename    = require('gulp-rename'),
+    concat    = require('gulp-concat'),
     del       = require('del');
 
 
@@ -34,10 +35,17 @@ gulp.task('minify', function () {
     suffix: '.min'
   };
 
+  var optsMinify = {
+    keepSpecialComments: 1
+  };
+
   return gulp
-    .src('src/*.css')
-    .pipe(minifyCSS())
+    .src(['src/tabby.css', 'src/tabby.theme.css'])
+    .pipe(minifyCSS(optsMinify))
     .pipe(rename(optsRename))
+    .pipe(gulp.dest('build/'))
+    .pipe(concat('tabby.bundle.css'))
+    .pipe(minifyCSS(optsMinify))
     .pipe(gulp.dest('build/'));
 });
 
@@ -57,7 +65,7 @@ gulp.task('clean', function (cb) {
 
 gulp.task('watch', ['uglify', 'minify'], function () {
   gulp.watch('src/tabby.js', ['uglify']);
-  gulp.watch('src/tabby.css', ['minify']);
+  gulp.watch('src/*.css', ['minify']);
 });
 
 
