@@ -210,7 +210,7 @@
         }
       };
 
-      $(document).keyup( cycleTabbyNav );
+      $(document).keydown( cycleTabbyNav );
     }
 
   });
