@@ -17,7 +17,8 @@
   var _class = {
     tabActive     : 'active',
     tabReady      : 'tabby-tab--ready',
-    triggerActive : 'active'
+    triggerActive : 'active',
+    exclude       : 'tabby-exclude'
   };
 
   function Plugin ( element, userOptions ) {
@@ -96,10 +97,13 @@
         var target  = $this.attr('href'),
             $target = $(target);
 
-        $this.siblings()
+        if ( !$target.length ) return;
+
+        $this.siblings(':not(.' + _class.exclude + ')')
           .removeClass( _class.triggerActive )
           .attr('tabindex', '-1')
           .removeAttr('aria-selected');
+
         $this
           .addClass( _class.triggerActive )
           .attr({
@@ -115,7 +119,7 @@
 
     setAccessibility: function () {
       var $triggersWrapper  = this._element.find('.tabby-triggers'),
-          $triggers         = this._element.find('.tabby-trigger'),
+          $triggers         = this._element.find('.tabby-trigger:not(.' + _class.exclude + ')'),
           $tabs             = this._element.find('.tabby-tab');
 
       $triggersWrapper.attr('role', 'tablist');
@@ -177,7 +181,7 @@
 
     keyboardNav: function ( element ) {
       var cycleTabbyNav = function ( event ) {
-        var $activeElem = element.find('.tabby-trigger:focus');
+        var $activeElem = element.find('.tabby-trigger:focus:not(.' + _class.exclude + ')');
 
         if ( !$activeElem.length ) return;
 
@@ -188,6 +192,8 @@
             hasNext = next.length;
 
         var gotoNav = function ( position ) {
+          if ( position.hasClass( _class.exclude ) ) return;
+
           $activeElem
             .removeClass( _class.triggerActive )
             .removeAttr('aria-selected')
