@@ -181,6 +181,8 @@
     },
 
     keyboardNav: function ( element ) {
+      var isHashChange = this._defaults.hashChange;
+
       var cycleTabbyNav = function ( event ) {
         var $activeElem = element.find('.tabby-trigger:focus:not(.' + _class.exclude + ')');
 
@@ -198,8 +200,10 @@
 
           position.trigger('click').focus();
 
-          window.location.hash = position.attr('href');
-          
+          if ( isHashChange ) {
+            window.location.hash = position.attr('href');
+          }
+
         };
 
         if ( event.keyCode === RIGHT_ARROW && hasNext ) {
