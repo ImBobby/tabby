@@ -167,16 +167,17 @@
 
       if ( !settings.hashChange || _hash === '' ) return;
 
-      var $target = $(_hash),
-          $trigger = $('.tabby-trigger[href="' + _hash + '"]');
+      var showTabByHash = function () {
+        var id        = window.location.hash,
+            $target   = $(id),
+            $trigger  = $('.tabby-trigger[href="' + id + '"]');
 
-      $trigger.siblings().removeClass( _class.triggerActive );
-      $trigger.siblings().removeAttr('aria-selected');
-      $trigger
-        .addClass( _class.triggerActive )
-        .attr('aria-selected', 'true');
+        $trigger.trigger('click').focus();
+      };
 
-      Plugin.prototype.showActiveTab( $target, settings );
+      showTabByHash();
+
+      window.onhashchange = showTabByHash;
     },
 
     keyboardNav: function ( element ) {
@@ -192,21 +193,13 @@
             hasNext = next.length;
 
         var gotoNav = function ( position ) {
-          if ( position.hasClass( _class.exclude ) ) return;
 
-          $activeElem
-            .removeClass( _class.triggerActive )
-            .removeAttr('aria-selected')
-            .attr('tabindex', '-1');
+          if ( position.hasClass( _class.exclude ) ) return;
 
           position.trigger('click').focus();
 
-          position
-            .addClass( _class.triggerActive )
-            .attr({
-              'aria-selected': 'true',
-              'tabindex': '0'
-            });
+          window.location.hash = position.attr('href');
+          
         };
 
         if ( event.keyCode === RIGHT_ARROW && hasNext ) {
