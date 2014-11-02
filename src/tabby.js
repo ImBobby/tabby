@@ -2,8 +2,6 @@
 
 ;(function ( $, window, document, undefined ) {
 
-  var pluginName = 'Tabby';
-
   var defaults = {
     hashChange: false,
     speed: 500,
@@ -25,7 +23,6 @@
     this._element   = $(element);
     this._settings  = $.extend( {}, defaults, userOptions);
     this._defaults  = this._settings;
-    this._name      = pluginName;
 
     this._triggers  = this._element.find('.tabby-trigger');
 
@@ -39,10 +36,10 @@
     init: function () {
       this.setGroup();
       this.showActiveTab( this._activeTab, this._defaults );
-      this.toggleTab( this._defaults );
+      this.toggleTab();
       this.setAccessibility();
-      this.hasHash( this._defaults );
-      this.keyboardNav( this._element );
+      this.hasHash();
+      this.keyboardNav();
     },
 
     // Set UID to each instance
@@ -86,7 +83,9 @@
       }
     },
 
-    toggleTab: function ( settings ) {
+    toggleTab: function () {
+      var settings = this._defaults;
+
       this._triggers.click( function ( event ) {
         var $this   = $(this);
 
@@ -161,9 +160,9 @@
       tabs.css('transition-delay', speed);
     },
 
-    hasHash: function ( settings ) {
-
-      var _hash = window.location.hash;
+    hasHash: function () {
+      var _hash     = window.location.hash,
+          settings  = this._defaults;
 
       if ( !settings.hashChange || _hash === '' ) return;
 
@@ -180,8 +179,9 @@
       window.onhashchange = showTabByHash;
     },
 
-    keyboardNav: function ( element ) {
-      var isHashChange = this._defaults.hashChange;
+    keyboardNav: function () {
+      var element       = this._element,
+          isHashChange  = this._defaults.hashChange;
 
       var cycleTabbyNav = function ( event ) {
         var $activeElem = element.find('.tabby-trigger:focus:not(.' + _class.exclude + ')');
