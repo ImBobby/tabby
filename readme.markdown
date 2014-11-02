@@ -18,10 +18,13 @@ Include Tabby's CSS and JS file and jQuery.
 
 ```HTML
 <link rel="stylesheet" href="path/to/tabby.css">
+<link rel="stylesheet" href="path/to/tabby.theme.css">
 ...
 <script src="path/to/jquery.js"></script>
 <script src="path/to/tabby.js"></script>
 ```
+
+**Tabby offer very minimal default theme. Feel free to modify that suits your need.*
 
 Set up the markup
 
@@ -76,7 +79,3 @@ elem.tabby();
 ## Browser support
 
 Minimum browser support is IE8+ along with other evergreen browsers.
-
-## Limitation
-
-For now Tabby only work for 1 instance per page only. 

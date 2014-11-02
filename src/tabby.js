@@ -3,8 +3,8 @@
 ;(function ( $, window, document, undefined ) {
 
   var defaults = {
-    hashChange: false,
     speed: 500,
+    hashChange: false,
     complete: null
   };
 
