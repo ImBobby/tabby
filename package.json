@@ -1,6 +1,6 @@
 {
   "name": "tabby",
-  "version": "0.6.0",
+  "version": "1.0.0",
   "description": "Tabby is a minimal jQuery tab plugin.",
   "main": "tabby.js",
   "keywords": [
