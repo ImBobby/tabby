@@ -23,11 +23,8 @@
     this._element   = $(element);
     this._settings  = $.extend( {}, defaults, userOptions);
     this._defaults  = this._settings;
-
     this._triggers  = this._element.find('.tabby-trigger');
-
     this._activeTab = this._element.find('.tabby-tab.active');
-
     this.init();
   }
 
@@ -116,6 +113,7 @@
       });
     },
 
+    // http://goo.gl/3jDdcF
     setAccessibility: function () {
       var $triggersWrapper  = this._element.find('.tabby-triggers'),
           $triggers         = this._element.find('.tabby-trigger:not(.' + _class.exclude + ')'),
@@ -151,13 +149,6 @@
           $this.attr('aria-hidden', 'true');
         }
       });
-    },
-
-    setTabbySpeed: function ( container, tabs, duration ) {
-      var speed = duration + 'ms';
-
-      container.css('transition-duration', speed);
-      tabs.css('transition-delay', speed);
     },
 
     hasHash: function () {
@@ -214,10 +205,18 @@
       };
 
       $(document).keydown( cycleTabbyNav );
+    },
+
+    setTabbySpeed: function ( container, tabs, duration ) {
+      var speed = duration + 'ms';
+
+      container.css('transition-duration', speed);
+      tabs.css('transition-delay', speed);
     }
 
   });
 
+  // http://goo.gl/bkMrAV
   function supportTransition() {
     return (
       'WebkitTransition' in document.body.style ||
