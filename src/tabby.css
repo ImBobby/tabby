@@ -5,13 +5,16 @@
 
 .tabby,
 .tabby * {
-    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
 }
 
 .tabby-tabs {
     will-change: height;
     position: relative;
     height: 0;
+    overflow: hidden;
     -webkit-transition-property: all;
             transition-property: all;
     -webkit-transition-duration: 500ms;
@@ -33,52 +36,8 @@
 
 .tabby-tab--ready {
     opacity: 1;
-    -webkit-transition: all 300ms ease;
-            transition: all 300ms ease;
-    -webkit-transition-delay: 500ms;
-            transition-delay: 500ms;
 }
 
 .tabby-tab.active {
     display: block;
-}
-
-/* Theme
--------------------------------------------------- */
-
-.tabby {
-    margin-bottom: 20px;
-}
-
-.tabby-triggers {
-    border-bottom: solid 1px #aaa;
-    margin-bottom: 20px;
-}
-
-.tabby-triggers:after {
-    display: table;
-    clear: both;
-    content: '';
-}
-
-.tabby-trigger {
-    position: relative;
-    top: 1px;
-    z-index: 2;
-    float: left;
-    display: block;
-    padding: 10px 20px;
-    border: solid 1px transparent;
-    text-decoration: none;
-    text-transform: uppercase;
-    color: #555;
-}
-
-.tabby-trigger:focus {
-    outline: dotted 1px;
-}
-
-.tabby-trigger.active {
-    border-color: #aaa;
-    border-bottom-color: white;
 }

@@ -2,23 +2,221 @@
 
 ;(function ( $, window, document, undefined ) {
 
-  var RIGHT_ARROW = 39,
-      LEFT_ARROW  = 37;
-
-  // Default options
-  var options = {
-    hashChange: false,
+  var defaults = {
     speed: 500,
+    hashChange: false,
     complete: null
   };
+
+  var RIGHT_ARROW = 39,
+      LEFT_ARROW  = 37;
 
   // Store class name
   var _class = {
     tabActive     : 'active',
     tabReady      : 'tabby-tab--ready',
-    triggerActive : 'active'
+    triggerActive : 'active',
+    exclude       : 'tabby-exclude'
   };
 
+  function Plugin ( element, userOptions ) {
+    this._element   = $(element);
+    this._settings  = $.extend( {}, defaults, userOptions);
+    this._defaults  = this._settings;
+    this._triggers  = this._element.find('.tabby-trigger');
+    this._activeTab = this._element.find('.tabby-tab.active');
+    this.init();
+  }
+
+  $.extend( Plugin.prototype, {
+
+    init: function () {
+      this.setGroup();
+      this.showActiveTab( this._activeTab, this._defaults );
+      this.toggleTab();
+      this.setAccessibility();
+      this.hasHash();
+      this.keyboardNav();
+    },
+
+    // Set UID to each instance
+    setGroup: function () {
+      var UID = new Date().getTime();
+
+      this._element.attr('data-tabby-group', UID);
+    },
+
+    showActiveTab: function ( activeTab, settings ) {
+      var $container  = activeTab.parent(),
+
+          // Find all tabs
+          $tabs       = $container.find('.tabby-tab'),
+
+          // Get the height of selected tab
+          height      = activeTab.innerHeight(),
+
+          // Get speed value
+          speed       = settings.speed;
+
+      if ( supportTransition() ) {
+        Plugin.prototype.setTabbySpeed( $container, $tabs, speed );
+        $container.css('height', height);
+      } else {
+        $container.animate({
+          'height': height + 'px'
+        }, speed);
+      }
+
+      activeTab.siblings()
+        .removeClass( _class.tabActive + ' ' + _class.tabReady )
+        .attr('aria-hidden', 'true');
+
+      activeTab
+        .addClass( _class.tabActive + ' ' + _class.tabReady )
+        .removeAttr('aria-hidden');
+
+      if ( $.isFunction( settings.complete ) ) {
+        var transitionComplete = setTimeout( settings.complete, settings.speed );
+      }
+    },
+
+    toggleTab: function () {
+      var settings = this._defaults;
+
+      this._triggers.click( function ( event ) {
+        var $this   = $(this);
+
+        if ( $this.hasClass( _class.triggerActive ) ) {
+          return event.preventDefault();
+        }
+
+        var target  = $this.attr('href'),
+            $target = $(target);
+
+        if ( !$target.length ) return;
+
+        $this.siblings(':not(.' + _class.exclude + ')')
+          .removeClass( _class.triggerActive )
+          .attr('tabindex', '-1')
+          .removeAttr('aria-selected');
+
+        $this
+          .addClass( _class.triggerActive )
+          .attr({
+            'tabindex': '0',
+            'aria-selected': 'true'
+          });
+
+        Plugin.prototype.showActiveTab( $target, settings );
+
+        if ( !settings.hashChange ) return event.preventDefault();
+      });
+    },
+
+    // http://goo.gl/3jDdcF
+    setAccessibility: function () {
+      var $triggersWrapper  = this._element.find('.tabby-triggers'),
+          $triggers         = this._element.find('.tabby-trigger:not(.' + _class.exclude + ')'),
+          $tabs             = this._element.find('.tabby-tab');
+
+      $triggersWrapper.attr('role', 'tablist');
+      
+      $triggers.each(function(index, el) {
+        var $this     = $(el),
+            href      = $this.attr('href'),
+            controls  = href.substring(1, href.length);
+
+        $this.attr({
+          'role': 'tab',
+          'aria-controls': controls,
+          'tabindex': '-1'
+        });
+
+        if ( $this.hasClass( _class.triggerActive ) ) {
+          $this.attr({
+            'aria-selected': 'true',
+            'tabindex': '0'
+          });
+        }
+      });
+
+      $tabs.each(function(index, el) {
+        var $this = $(el);
+
+        $this.attr('role', 'tabpanel');
+
+        if ( !$this.hasClass( _class.tabActive ) ) {
+          $this.attr('aria-hidden', 'true');
+        }
+      });
+    },
+
+    hasHash: function () {
+      var _hash     = window.location.hash,
+          settings  = this._defaults;
+
+      if ( !settings.hashChange || _hash === '' ) return;
+
+      var showTabByHash = function () {
+        var id        = window.location.hash,
+            $target   = $(id),
+            $trigger  = $('.tabby-trigger[href="' + id + '"]');
+
+        $trigger.trigger('click').focus();
+      };
+
+      showTabByHash();
+
+      window.onhashchange = showTabByHash;
+    },
+
+    keyboardNav: function () {
+      var element       = this._element,
+          isHashChange  = this._defaults.hashChange;
+
+      var cycleTabbyNav = function ( event ) {
+        var $activeElem = element.find('.tabby-trigger:focus:not(.' + _class.exclude + ')');
+
+        if ( !$activeElem.length ) return;
+
+        var prev    = $activeElem.prev(),
+            next    = $activeElem.next(),
+
+            hasPrev = prev.length,
+            hasNext = next.length;
+
+        var gotoNav = function ( position ) {
+
+          if ( position.hasClass( _class.exclude ) ) return;
+
+          position.trigger('click').focus();
+
+          if ( isHashChange ) {
+            window.location.hash = position.attr('href');
+          }
+
+        };
+
+        if ( event.keyCode === RIGHT_ARROW && hasNext ) {
+          gotoNav( next );
+        } else if ( event.keyCode === LEFT_ARROW && hasPrev ) {
+          gotoNav( prev );
+        }
+      };
+
+      $(document).keydown( cycleTabbyNav );
+    },
+
+    setTabbySpeed: function ( container, tabs, duration ) {
+      var speed = duration + 'ms';
+
+      container.css('transition-duration', speed);
+      tabs.css('transition-delay', speed);
+    }
+
+  });
+
+  // http://goo.gl/bkMrAV
   function supportTransition() {
     return (
       'WebkitTransition' in document.body.style ||
@@ -28,223 +226,12 @@
     );
   }
 
-  function setAriaAttributes( elem ) {
-    var $triggersWrapper  = elem.find('.tabby-triggers'),
-        $triggers         = elem.find('.tabby-trigger'),
-        $tabs             = elem.find('.tabby-tab');
-
-    $triggersWrapper.attr('role', 'tablist');
-    
-    $triggers.each(function(index, el) {
-      var $this     = $(el),
-          href      = $this.attr('href'),
-          controls  = href.substring(1, href.length);
-
-      $this.attr({
-        'role': 'tab',
-        'aria-controls': controls,
-        'tabindex': '-1'
-      });
-
-      if ( $this.hasClass( _class.triggerActive ) ) {
-        $this.attr({
-          'aria-selected': 'true',
-          'tabindex': '0'
-        });
-      }
-    });
-
-    $tabs.each(function(index, el) {
-      var $this = $(el);
-
-      $this.attr('role', 'tabpanel');
-
-      if ( !$this.hasClass( _class.tabActive ) ) {
-        $this.attr('aria-hidden', 'true');
-      }
-    });
-  }
-
-  // Set Unique ID to each instance
-  function setGroup( elem ) {
-    var UID = new Date().getTime();
-
-    elem.setAttribute('data-tabby-group', UID);
-  }
-
-  // Check whether URL contain hash
-  function hasHash() {
-    
-    if ( !options.hashChange ) return;
-
-    var _hash = window.location.hash;
-
-    if ( !_hash ) return;
-
-    var $target     = $(_hash),
-        $trigger    = $('.tabby-trigger[href="' + _hash + '"]');
-
-    $trigger.siblings().removeClass( _class.triggerActive );
-    $trigger.siblings().removeAttr('aria-selected');
-    $trigger
-      .addClass( _class.triggerActive )
-      .attr('aria-selected', 'true');
-
-    $target.siblings().removeClass( _class.tabActive );
-    $target.siblings().attr('aria-hidden', 'true');
-    $target
-      .addClass( _class.tabActive )
-      .removeAttr('aria-hidden');
-  }
-
-  // Set animation speed
-  function setTabbySpeed( elem, duration ) {
-    elem.css('transition-duration', duration + 'ms');
-    elem.find('.tabby-tab').css('transition-delay', duration + 'ms');
-  }
-
-  // Set container height equal to active tab
-  function setTabbyHeight( elem ) {
-    var $container    = elem.find('.tabby-tabs'),
-        $tabs         = elem.find('.tabby-tab'),
-        $activeTab    = elem.find('.tabby-tab.active'),
-        activeHeight  = $activeTab.innerHeight();
-
-    if ( supportTransition() ) {
-
-      setTabbySpeed( $container, options.speed );
-
-      // Use transition if available
-      $container.css('height', activeHeight);
-
-    } else {
-
-      // Use jQuery animate if transition unvailable
-      $container.animate({
-        'height': activeHeight
-      }, options.speed);
-
-    }
-
-    // Run callback
-    if ( $.isFunction(options.complete) ) {
-      var changeComplete = setTimeout( options.complete , options.speed );
-    }
-
-    $tabs.addClass( _class.tabReady );
-  }
-
-  function toggleTab( event ) {
-    var $this   = $(this),
-        target  = this.getAttribute('href'),
-        $target = $(target);
-
-    if ( $target.hasClass( _class.tabActive ) ) {
-      return event.preventDefault();
-    }
-
-    var $parent   = $this.parents('[data-tabby-group]'),
-        $triggers = $parent.find('.tabby-trigger'),
-        $tabs     = $parent.find('.tabby-tab');
-
-    $tabs.removeClass( _class.tabReady );
-
-    $triggers
-      .removeClass( _class.triggerActive )
-      .removeAttr('aria-selected');
-    $this
-      .addClass( _class.triggerActive )
-      .attr('aria-selected', 'true')
-      .focus();
-
-    $tabs
-      .removeClass( _class.tabActive )
-      .attr('aria-hidden', 'true');
-    $target
-      .addClass( _class.tabActive )
-      .removeAttr('aria-hidden');
-
-    setTabbyHeight($parent);
-
-
-    // Set has to URL if hashChange is true
-    if ( options.hashChange ) {
-      window.location.hash = target;
-    }
-
-    event.preventDefault();
-  }
-
-  function keyboardNav( elem ) {
-    var cycleTabbyNav = function (e) {
-
-      // Get active element.
-      var activeElem = $( document.activeElement );
-
-      // If not tabby trigger, ignore.
-      if ( !activeElem.hasClass( _class.triggerActive ) ) return;
-
-      var prev    = activeElem.prev(),
-          next    = activeElem.next(),
-
-          hasPrev = prev.length,
-          hasNext = next.length;
-
-      var gotoNav = function ( position ) {
-        activeElem
-          .removeClass( _class.triggerActive )
-          .removeAttr('aria-selected')
-          .attr('tabindex', '-1');
-
-        position
-          .addClass( _class.triggerActive )
-          .attr({
-            'aria-selected': 'true',
-            'tabindex': '0'
-          })
-          .focus();
-
-        position.trigger('click');
-      };
-
-      if ( e.keyCode === RIGHT_ARROW && hasNext ) {
-        gotoNav( next );
-      } else if ( e.keyCode === LEFT_ARROW && hasPrev ) {
-        gotoNav( prev );
-      }
-    };
-
-    $(document).keydown( cycleTabbyNav );
-  }
-
-  $.fn.tabby = function ( userOpts ) {
+  $.fn.tabby = function ( userOptions ) {
 
     if ( !this.length ) return;
 
-    var opts = userOpts || options;
-
-    $.extend(options, userOpts);
-
     return this.each(function () {
-      var $this     = $(this),
-          $triggers = $this.find('.tabby-trigger');
-
-      // Assign an ID for each tab group
-      setGroup(this);
-
-      // Set proper ARIA and Role attributes
-      setAriaAttributes($this);
-
-      // Show tab base on hash
-      hasHash();
-
-      // Calculate height
-      setTabbyHeight($this);
-
-      // Toggle tab on click
-      $triggers.click( toggleTab );
-
-      keyboardNav($this);
+      new Plugin( this, userOptions );
     });
   };
 
